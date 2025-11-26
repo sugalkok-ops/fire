@@ -1,124 +1,119 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="en-GB">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>勞保老年年金：提早領 vs 延後領 決策模擬器</title>
+    <title>🇬🇧 UK New State Pension Deferral Simulator</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: "微軟正黑體", sans-serif; background: #f0f2f5; margin: 0; padding: 20px; color: #333; }
+        /* CSS 樣式沿用您提供的風格，只做文字調整 */
+        body { font-family: "Arial", sans-serif; background: #f0f2f5; margin: 0; padding: 20px; color: #333; }
         .container { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
-        
         @media (max-width: 768px) {
             .container { grid-template-columns: 1fr; }
         }
-
         .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        h1 { text-align: center; color: #2c3e50; grid-column: 1 / -1; margin-bottom: 20px; }
+        h1 { text-align: center; color: #1abc9c; grid-column: 1 / -1; margin-bottom: 20px; }
         h2 { font-size: 1.2rem; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; color: #34495e; }
-
         .input-group { margin-bottom: 18px; }
         label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.95rem; }
         input[type="number"], input[type="range"] { width: 100%; box-sizing: border-box; padding: 8px; border: 1px solid #ddd; border-radius: 6px; }
         input[type="range"] { padding: 0; }
         .hint { font-size: 0.8rem; color: #7f8c8d; margin-top: 4px; }
         .val-display { float: right; color: #2980b9; font-weight: bold; }
-
         .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
         .stat-box { background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center; border-top: 4px solid #ccc; }
         .stat-box h3 { margin: 0 0 5px 0; font-size: 1rem; color: #555; }
         .stat-box .money { font-size: 1.3rem; font-weight: bold; color: #2c3e50; }
         .stat-box .desc { font-size: 0.8rem; color: #666; }
-        
-        .box-early { border-color: #27ae60; } /* 綠色 */
-        .box-normal { border-color: #7f8c8d; } /* 灰色 */
-        .box-late { border-color: #e67e22; }   /* 橘色 */
-
-        .analysis-text { background: #e8f6f3; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid #1abc9c; }
-        
+        .box-normal { border-color: #3498db; } /* 藍色 */
+        .box-defer1 { border-color: #2ecc71; } /* 綠色 */
+        .box-defer3 { border-color: #f39c12; } /* 黃色 */
+        .analysis-text { background: #ebf5fb; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid #3498db; }
         #chartContainer { height: 400px; position: relative; }
     </style>
 </head>
 <body>
 
-    <h1>🇹🇼 勞保老年年金：提早領 vs 延後領 試算模擬</h1>
+    <h1>🇬🇧 UK New State Pension Deferral Simulator</h1>
 
     <div class="container">
-        <!-- 左側參數設定 -->
         <div class="card">
-            <h2>📋 個人參數設定</h2>
+            <h2>📋 UK State Pension Parameters</h2>
             
             <div class="input-group">
-                <label>目前年齡</label>
-                <input type="number" id="age_current" value="50">
+                <label>Current Age</label>
+                <input type="number" id="age_current" value="60">
+                <div class="hint">The simulation starts from your current age.</div>
             </div>
 
             <div class="input-group">
-                <label>目前已累積勞保年資 (年)</label>
-                <input type="number" id="years_current" value="25">
+                <label>Your State Pension Age (SPA)</label>
+                <input type="number" id="age_spa" value="66" min="66" max="68">
+                <div class="hint">Currently 66, rising to 67, and eventually 68.</div>
             </div>
 
             <div class="input-group">
-                <label>最高 60 個月平均投保薪資 (元)</label>
-                <input type="number" id="avg_salary" value="45800">
-                <div class="hint">目前最高級距為 45,800 元</div>
+                <label>Weekly Full State Pension Amount (£)</label>
+                <input type="number" id="full_pension_weekly" value="230.25">
+                <div class="hint">£230.25 is the full rate for 2025/26 (for 35 Qualifying Years).</div>
             </div>
 
             <div class="input-group">
-                <label>預估每月自付勞保費 (元)</label>
-                <input type="number" id="monthly_premium" value="1100">
-                <div class="hint">用於計算延後退休需多付出的成本 (約薪資2.4%左右)</div>
+                <label>Deferral Increase Rate (% per year)</label>
+                <input type="number" id="deferral_rate" value="5.77" step="0.01">
+                <div class="hint">The rate is 1% for every 9 weeks (approx 5.77% per 52 weeks).</div>
             </div>
-            
+
             <div class="input-group">
-                <label>台灣平均餘命參考線 (歲)</label>
+                <label>UK Average Life Expectancy (Years)</label>
                 <input type="range" id="life_expectancy" min="70" max="100" value="84">
-                <div class="hint">目前國人平均約 80~84 歲 <span class="val-display" id="d_life">84歲</span></div>
+                <div class="hint">Used for break-even analysis. <span class="val-display" id="d_life">84 Years</span></div>
             </div>
 
             <hr style="border:0; border-top:1px solid #eee; margin: 20px 0;">
             
             <div style="font-size:0.9rem; color:#666;">
-                <p><b>預設情境說明：</b></p>
+                <p><b>Simulation Scenarios:</b></p>
                 <ul style="padding-left:20px; margin:5px 0;">
-                    <li><b>提早領 (A)：</b>60歲退休，年資停在60歲，月領減額 20%。</li>
-                    <li><b>正常領 (B)：</b>65歲退休，年資算到65歲，月領標準金額。</li>
-                    <li><b>延後領 (C)：</b>70歲退休，年資算到70歲，月領增額 20%。</li>
+                    <li><b>Normal Claim (A):</b> Claim at State Pension Age (SPA).</li>
+                    <li><b>Defer 1 Year (B):</b> Claim one year after SPA (approx. +5.77%).</li>
+                    <li><b>Defer 3 Years (C):</b> Claim three years after SPA (approx. +17.31%).</li>
                 </ul>
+                <p style="color:#e74c3c; font-weight:bold;">* You cannot claim before your SPA. Tax implications are not included in this simulation.</p>
             </div>
         </div>
 
-        <!-- 右側分析結果 -->
         <div class="card">
-            <h2>📊 效益分析與交叉點</h2>
+            <h2>📊 Benefit Analysis & Crossover Point</h2>
             
             <div class="summary-grid">
-                <div class="stat-box box-early">
-                    <h3>提早領 (60歲)</h3>
-                    <div class="money" id="pension_early">$0</div>
-                    <div class="desc">每月領取金額<br>(-20% 減給)</div>
-                </div>
                 <div class="stat-box box-normal">
-                    <h3>正常領 (65歲)</h3>
+                    <h3>Normal Claim (SPA)</h3>
                     <div class="money" id="pension_normal">$0</div>
-                    <div class="desc">每月領取金額<br>(標準)</div>
+                    <div class="desc">Annual amount (£)<br>(100% Rate)</div>
                 </div>
-                <div class="stat-box box-late">
-                    <h3>延後領 (70歲)</h3>
-                    <div class="money" id="pension_late">$0</div>
-                    <div class="desc">每月領取金額<br>(+20% 展延)</div>
+                <div class="stat-box box-defer1">
+                    <h3>Defer 1 Year</h3>
+                    <div class="money" id="pension_defer1">$0</div>
+                    <div class="desc">Annual amount (£)<br>(+5.77% Increase)</div>
+                </div>
+                <div class="stat-box box-defer3">
+                    <h3>Defer 3 Years</h3>
+                    <div class="money" id="pension_defer3">$0</div>
+                    <div class="desc">Annual amount (£)<br>(+17.31% Increase)</div>
                 </div>
             </div>
 
             <div class="analysis-text" id="analysisResult">
-                計算中...
+                Calculating...
             </div>
 
             <div id="chartContainer">
                 <canvas id="pensionChart"></canvas>
             </div>
             <div class="hint" style="text-align:center; margin-top:10px;">
-                * 縱軸為「累積淨值」：已領年金總額 扣除 60歲後繳納之保費成本
+                * Y-axis shows the accumulated State Pension amount (net of any contributions).
             </div>
         </div>
     </div>
@@ -134,150 +129,139 @@
     }
 
     function formatMoney(n) {
-        return parseInt(n).toLocaleString('zh-TW');
+        // Round to nearest pound for clean display
+        return Math.round(n).toLocaleString('en-GB');
     }
 
     function calculate() {
-        // 1. 取得輸入
+        // 1. Get Inputs
         const ageCurrent = Number(document.getElementById('age_current').value);
-        const yearsCurrent = Number(document.getElementById('years_current').value);
-        const salary = Number(document.getElementById('avg_salary').value);
-        const premium = Number(document.getElementById('monthly_premium').value); // 月繳保費
+        const ageSPA = Number(document.getElementById('age_spa').value);
+        const fullPensionWeekly = Number(document.getElementById('full_pension_weekly').value);
+        const deferralRate = Number(document.getElementById('deferral_rate').value) / 100; // Convert to decimal
         const lifeExp = Number(document.getElementById('life_expectancy').value);
 
-        document.getElementById('d_life').innerText = lifeExp + "歲";
+        document.getElementById('d_life').innerText = lifeExp + " Years";
 
-        // 2. 定義三個情境的參數
-        // 假設目前年齡小於 60，若大於 60 則邏輯需微調，這裡以規劃角度為主
+        // Convert weekly to annual amount (52 weeks)
+        const annualPensionFull = fullPensionWeekly * 52; 
+
+        // 2. Define Scenarios
         
-        // 共同變數：法定退休年齡 65 (計算基準)
-        // 年金公式：平均月投保薪資 × 年資 × 1.55%
+        // --- Scenario A: Normal Claim (SPA) ---
+        const ageA = ageSPA;
+        const annualA = annualPensionFull; 
         
-        // --- 情境 A: 提早領 (60歲) ---
-        // 年資累積到 60 歲停止
-        const ageA = 60;
-        const yearsA = yearsCurrent + Math.max(0, ageA - ageCurrent); 
-        const baseA = salary * yearsA * 0.0155; 
-        const monthlyA = baseA * (1 - 0.20); // 提前5年，減給 20%
-        const costA = 0; // 60歲就沒繳費了 (相對於基準點)
-
-        // --- 情境 B: 正常領 (65歲) ---
-        // 年資累積到 65 歲
-        const ageB = 65;
-        const yearsB = yearsCurrent + Math.max(0, ageB - ageCurrent);
-        const baseB = salary * yearsB * 0.0155;
-        const monthlyB = baseB; // 標準
-        // 成本：從 60歲到 65歲 多繳了 5 年保費
-        // 為了方便比較，我們計算「淨所得」。
+        // --- Scenario B: Defer 1 Year (SPA + 1) ---
+        const deferYearsB = 1;
+        const ageB = ageSPA + deferYearsB;
+        const annualB = annualPensionFull * (1 + deferralRate * deferYearsB);
         
-        // --- 情境 C: 延後領 (70歲) ---
-        // 年資累積到 70 歲
-        const ageC = 70;
-        const yearsC = yearsCurrent + Math.max(0, ageC - ageCurrent);
-        const baseC = salary * yearsC * 0.0155;
-        const monthlyC = baseC * (1 + 0.20); // 延後5年，展延 20%
+        // --- Scenario C: Defer 3 Years (SPA + 3) ---
+        const deferYearsC = 3;
+        const ageC = ageSPA + deferYearsC;
+        const annualC = annualPensionFull * (1 + deferralRate * deferYearsC);
 
-        // 更新上方顯示
-        document.getElementById('pension_early').innerText = '$' + formatMoney(monthlyA);
-        document.getElementById('pension_normal').innerText = '$' + formatMoney(monthlyB);
-        document.getElementById('pension_late').innerText = '$' + formatMoney(monthlyC);
+        // Update display boxes
+        document.getElementById('pension_normal').innerText = '£' + formatMoney(annualA);
+        document.getElementById('pension_defer1').innerText = '£' + formatMoney(annualB);
+        document.getElementById('pension_defer3').innerText = '£' + formatMoney(annualC);
 
-        // 3. 產生圖表數據 (從 60 歲計算到 90 歲)
+        // 3. Generate Chart Data (from SPA up to 95 years old)
         let labels = [];
         let dataA = [];
-        let dataB = [];
-        let dataC = [];
+        let dataB = []; 
+        let dataC = []; 
 
         let accA = 0;
-        let accB = 0; // 60歲開始算，B還沒領且在繳費
-        let accC = 0; // 60歲開始算，C還沒領且在繳費
+        let accB = 0; 
+        let accC = 0; 
 
-        // 用於尋找交叉點
-        let crossAB = null; // 正常 追過 提早
-        let crossCB = null; // 延後 追過 正常
+        // Used to find the break-even points
+        let crossBA = null; // Defer 1 year vs Normal
+        let crossCA = null; // Defer 3 years vs Normal
         
         const maxAge = 95;
 
-        for (let age = 60; age <= maxAge; age++) {
-            labels.push(age + "歲");
+        for (let age = ageSPA; age <= maxAge; age++) {
+            labels.push(age + " Years");
 
-            // 情境 A: 60歲開始領，不需繳費
+            // Scenario A: Claim starts at SPA
             if (age >= ageA) {
-                accA += monthlyA * 12;
+                accA += annualA;
             }
 
-            // 情境 B: 60-64歲繳費，65歲開始領
-            if (age < ageB) {
-                accB -= premium * 12; // 負現金流 (繳保費)
-            } else {
-                accB += monthlyB * 12;
+            // Scenario B: Claim starts at SPA + 1 year
+            if (age >= ageB) {
+                accB += annualB; 
             }
+            // Note: During the deferral period (ageSPA to ageSPA+1), accB remains 0.
 
-            // 情境 C: 60-69歲繳費，70歲開始領
-            if (age < ageC) {
-                accC -= premium * 12; // 負現金流
-            } else {
-                accC += monthlyC * 12;
+            // Scenario C: Claim starts at SPA + 3 years
+            if (age >= ageC) {
+                accC += annualC; 
             }
+            // Note: During the deferral period (ageSPA to ageSPA+3), accC remains 0.
 
             dataA.push(accA);
             dataB.push(accB);
             dataC.push(accC);
 
-            // 偵測交叉點
-            if (crossAB === null && accB > accA) crossAB = age;
-            if (crossCB === null && accC > accB) crossCB = age;
+            // Detect crossover points (when deferral amount overtakes normal claim amount)
+            if (crossBA === null && accB > accA) crossBA = age;
+            if (crossCA === null && accC > accA) crossCA = age;
         }
 
-        // 4. 更新分析文字
-        const diffBA = monthlyB - monthlyA;
-        const diffCB = monthlyC - monthlyB;
+        // 4. Update Analysis Text
+        const foregoneB = annualA * deferYearsB;
+        const foregoneC = annualA * deferYearsC;
+        const annualGainB = annualB - annualA;
+        const annualGainC = annualC - annualA;
         
-        let msg = `<b>💡 分析報告：</b><br>`;
-        msg += `1. <b>提早領 vs 正常領</b>：雖然提早領每個月少領 $${formatMoney(diffBA)}，但您先領了 5 年。`;
-        if (crossAB) {
-            msg += `如果您預期會活超過 <b>${crossAB} 歲</b>，選擇「正常領」累積總金額較高。相反的，若健康狀況不佳，提早領較有利。<br>`;
-        } else {
-            msg += `在這個設定下，正常領似乎永遠追不上提早領（罕見情況，請檢查參數）。<br>`;
-        }
+        let msg = `<b>💡 Deferral Analysis:</b><br>`;
         
-        msg += `<br>2. <b>正常領 vs 延後領</b>：延後領每個月多領 $${formatMoney(diffCB)}，但須多繳保費且晚5年拿錢。`;
-        if (crossCB) {
-            msg += `您需要活超過 <b>${crossCB} 歲</b>，延後領的總效益才會超越正常領。`;
-            if (crossCB > lifeExp) {
-                msg += `<span style="color:#c0392b; font-weight:bold;">(注意：此歲數已超過您設定的平均餘命 ${lifeExp} 歲，延後領可能不划算！)</span>`;
+        // Analysis for Defer 1 Year (B vs A)
+        msg += `<p>1. <b>Defer 1 Year vs Normal Claim (SPA):</b></p>`;
+        msg += `By deferring for 1 year, you forego **£${formatMoney(foregoneB)}** but gain an extra **£${formatMoney(annualGainB)}** per year, for life. `;
+        if (crossBA) {
+            msg += `Your total accumulated pension will break-even at age **${crossBA}**. `;
+            if (crossBA > lifeExp) {
+                msg += `<span style="color:#e74c3c; font-weight:bold;">(Note: This break-even age is higher than the average life expectancy of ${lifeExp}.)</span>`;
             } else {
-                msg += `<span style="color:#27ae60; font-weight:bold;">(此歲數小於平均餘命，若家族長壽可考慮延後領)</span>`;
+                 msg += `<span style="color:#27ae60; font-weight:bold;">(Note: This break-even age is lower than the average life expectancy of ${lifeExp}. Deferring is likely beneficial.)</span>`;
             }
+        } else {
+            msg += `The break-even point is beyond ${maxAge} years old (unlikely scenario).`;
         }
+
+        // Analysis for Defer 3 Years (C vs A)
+        msg += `<p>2. <b>Defer 3 Years vs Normal Claim (SPA):</b></p>`;
+        msg += `By deferring for 3 years, you forego **£${formatMoney(foregoneC)}** but gain an extra **£${formatMoney(annualGainC)}** per year, for life. `;
+        if (crossCA) {
+            msg += `Your total accumulated pension will break-even at age **${crossCA}**. `;
+            if (crossCA > lifeExp) {
+                msg += `<span style="color:#e74c3c; font-weight:bold;">(Note: This break-even age is higher than the average life expectancy of ${lifeExp}.)</span>`;
+            } else {
+                 msg += `<span style="color:#27ae60; font-weight:bold;">(Note: This break-even age is lower than the average life expectancy of ${lifeExp}. Deferring is likely beneficial.)</span>`;
+            }
+        } else {
+            msg += `The break-even point is beyond ${maxAge} years old (unlikely scenario).`;
+        }
+
 
         document.getElementById('analysisResult').innerHTML = msg;
 
-        drawChart(labels, dataA, dataB, dataC, lifeExp);
+        drawChart(labels, dataA, dataB, dataC, lifeExp, ageSPA);
     }
 
-    function drawChart(labels, dA, dB, dC, lifeExp) {
+    function drawChart(labels, dA, dB, dC, lifeExp, ageSPA) {
         const ctx = document.getElementById('pensionChart').getContext('2d');
         
         if (myChart) myChart.destroy();
 
-        // 找出平均餘命在 label 中的 index
-        const lifeIndex = lifeExp - 60; 
-
-        const annotation = {
-            type: 'line',
-            mode: 'vertical',
-            scaleID: 'x',
-            value: lifeIndex,
-            borderColor: 'rgba(255, 99, 132, 0.8)',
-            borderWidth: 2,
-            borderDash: [5, 5],
-            label: {
-                content: '平均餘命',
-                enabled: true,
-                position: 'top'
-            }
-        };
+        // Find the index for the average life expectancy and SPA
+        const lifeIndex = lifeExp - ageSPA; 
+        const spaIndex = 0; // The chart starts at SPA
 
         myChart = new Chart(ctx, {
             type: 'line',
@@ -285,28 +269,28 @@
                 labels: labels,
                 datasets: [
                     {
-                        label: '提早領 (60歲)',
+                        label: 'Normal Claim (SPA)',
                         data: dA,
-                        borderColor: '#27ae60', // Green
-                        backgroundColor: 'rgba(39, 174, 96, 0.1)',
-                        borderWidth: 2,
-                        tension: 0.4
+                        borderColor: '#3498db', // Blue
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        borderWidth: 3, 
+                        tension: 0.3
                     },
                     {
-                        label: '正常領 (65歲)',
+                        label: 'Defer 1 Year',
                         data: dB,
-                        borderColor: '#7f8c8d', // Gray
-                        backgroundColor: 'rgba(127, 140, 141, 0.1)',
-                        borderWidth: 3, // Thicker
-                        tension: 0.4
+                        borderColor: '#2ecc71', // Green
+                        backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.3
                     },
                     {
-                        label: '延後領 (70歲)',
+                        label: 'Defer 3 Years',
                         data: dC,
-                        borderColor: '#e67e22', // Orange
-                        backgroundColor: 'rgba(230, 126, 34, 0.1)',
+                        borderColor: '#f39c12', // Orange
+                        backgroundColor: 'rgba(243, 156, 18, 0.1)',
                         borderWidth: 2,
-                        tension: 0.4
+                        tension: 0.3
                     }
                 ]
             },
@@ -321,27 +305,26 @@
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                return context.dataset.label + ': ' + formatMoney(context.raw);
+                                return context.dataset.label + ': £' + formatMoney(context.raw);
                             }
                         }
                     },
-                    annotation: {
-                        // Chart.js annotation plugin is external, simplified via basic drawing or ignored if not loaded
-                        // We use manual checking logic in text instead to keep it single-file without external plugins dependency issues
-                    }
                 },
                 scales: {
+                    x: {
+                        title: { display: true, text: 'Age (Years)' }
+                    },
                     y: {
-                        beginAtZero: false,
-                        title: { display: true, text: '累積淨收益 (元)' },
+                        beginAtZero: true,
+                        title: { display: true, text: 'Accumulated State Pension Net Value (£)' },
                         ticks: {
-                            callback: function(value) { return value/10000 + '萬'; }
+                            callback: function(value) { return '£' + (value/1000).toFixed(0) + 'k'; }
                         }
                     }
                 }
             },
             plugins: [{
-                // 自定義插件畫「平均餘命」那條虛線
+                // Custom plugin to draw the "Average Life Expectancy" line
                 id: 'lifeLine',
                 beforeDraw: (chart) => {
                     if (lifeIndex < 0 || lifeIndex >= labels.length) return;
@@ -359,10 +342,10 @@
                     ctx.setLineDash([5, 5]);
                     ctx.stroke();
                     
-                    // 文字標籤
+                    // Text label
                     ctx.fillStyle = '#e74c3c';
                     ctx.font = 'bold 12px Arial';
-                    ctx.fillText(`平均餘命 (${lifeExp}歲)`, x + 5, yAxis.top + 20);
+                    ctx.fillText(`Avg Life Exp (${lifeExp})`, x + 5, yAxis.top + 20);
                     ctx.restore();
                 }
             }]
@@ -371,7 +354,7 @@
 
     window.onload = function() {
         if (typeof Chart === 'undefined') {
-            alert("請連接網路以載入圖表庫");
+            alert("Please connect to the internet to load the Chart library.");
         } else {
             init();
         }
