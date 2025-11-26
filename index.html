@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="en-GB">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>複利與提領策略計算機 (專業版)</title>
+    <title>Compound Interest & Withdrawal Strategy Calculator (UK Edition)</title>
     
-    <!-- 1. 引入 Roboto Mono 字體 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -20,11 +19,11 @@
             --text-main: #333;
             --success: #27ae60;
             --danger: #e74c3c;
-            --mono-font: 'Roboto Mono', monospace; /* 定義數字字體 */
+            --mono-font: 'Roboto Mono', monospace; /* Define Monospace font for numbers */
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Microsoft JhengHei", "微軟正黑體", sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
             background-color: var(--bg);
             margin: 0;
             padding: 20px;
@@ -44,7 +43,7 @@
             max-width: 1200px;
             margin: 0 auto;
             display: grid;
-            gap: 40px; /* 保持較大的間距 */
+            gap: 40px; 
             grid-template-columns: 1fr;
         }
 
@@ -84,7 +83,7 @@
             font-size: 0.95rem;
         }
 
-        /* 輸入框樣式 */
+        /* Input Styles */
         input[type="text"], input[type="number"] {
             width: 100%;
             padding: 12px;
@@ -93,7 +92,7 @@
             font-size: 16px; 
             box-sizing: border-box;
             background: #fafafa;
-            /* 2. 應用數字字體 */
+            /* Apply Monospace font */
             font-family: var(--mono-font); 
             font-weight: 500;
             color: #2c3e50;
@@ -112,7 +111,7 @@
             margin: 5px 0;
         }
 
-        /* 滑桿數值顯示也用 Mono 字體 */
+        /* Slider Value Display with Mono font */
         .val-display { 
             float: right; 
             color: var(--accent); 
@@ -137,9 +136,9 @@
 
         .result-box .label { font-size: 0.85rem; color: #777; margin-bottom: 5px; }
         
-        /* 結果數值用 Mono 字體 */
+        /* Result value with Mono font */
         .result-box .value { 
-            font-size: 1.4rem; /* 稍微加大 */
+            font-size: 1.4rem; 
             font-weight: 700; 
             color: var(--primary); 
             font-family: var(--mono-font);
@@ -171,75 +170,72 @@
 </head>
 <body>
 
-    <h1>💰 複利與提領策略計算機</h1>
-    <div id="errorMsg">⚠️ 請連接網路以載入字體與圖表元件</div>
+    <h1>💰 Compound Interest & Withdrawal Strategy Calculator</h1>
+    <div id="errorMsg">⚠️ Please ensure you have an internet connection to load fonts and chart components.</div>
 
     <div class="container">
-        <!-- 左側：參數設定 -->
         <div class="card">
-            <h2>⚙️ 參數設定</h2>
+            <h2>⚙️ Parameters</h2>
             
             <div class="input-group">
-                <label>初始本金 (元)</label>
-                <!-- 3. 改用 type="text" 並加上 inputmode="numeric" -->
-                <input type="text" id="initialPrincipal" value="1,000,000" inputmode="numeric">
+                <label>Initial Principal (£)</label>
+                <input type="text" id="initialPrincipal" value="100,000" inputmode="numeric">
             </div>
 
             <div class="input-group">
-                <label>每月定期定額 (元)</label>
-                <input type="text" id="monthlyContribute" value="20,000" inputmode="numeric">
+                <label>Monthly Contribution (£)</label>
+                <input type="text" id="monthlyContribute" value="2,000" inputmode="numeric">
             </div>
 
             <div class="input-group">
-                <label>預期年化報酬率 <span id="rateVal" class="val-display">6%</span></label>
+                <label>Expected Annual Return <span id="rateVal" class="val-display">6%</span></label>
                 <input type="range" id="interestRate" min="1" max="15" step="0.1" value="6">
             </div>
 
             <div class="input-group">
-                <label>距離退休還有幾年 (累積期) <span id="yearsVal" class="val-display">20年</span></label>
+                <label>Years to Retirement (Accumulation) <span id="yearsVal" class="val-display">20 years</span></label>
                 <input type="range" id="investYears" min="1" max="50" step="1" value="20">
             </div>
 
             <div class="input-group">
-                <label>退休後年提領率 <span id="withdrawRateVal" class="val-display">4%</span></label>
+                <label>Annual Withdrawal Rate (Post-Retirement) <span id="withdrawRateVal" class="val-display">4%</span></label>
                 <input type="range" id="withdrawalRate" min="1" max="10" step="0.1" value="4">
             </div>
 
             <div class="input-group">
-                <label>退休後生活年數 <span id="lifeVal" class="val-display">30年</span></label>
+                <label>Years in Retirement <span id="lifeVal" class="val-display">30 years</span></label>
                 <input type="range" id="retirementYears" min="10" max="60" step="1" value="30">
             </div>
         </div>
 
-        <!-- 右側：圖表與結果 -->
         <div class="card">
-            <h2>📊 分析結果</h2>
+            <h2>📊 Analysis Results</h2>
             
             <div class="results-grid">
                 <div class="result-box">
-                    <div class="label">退休時累積資產</div>
-                    <div class="value" id="finalAccumulation">$0</div>
+                    <div class="label">Total Wealth at Retirement</div>
+                    <div class="value" id="finalAccumulation">£0</div>
                 </div>
                 <div class="result-box">
-                    <div class="label">退休首年每月可用</div>
-                    <div class="value" id="monthlyIncome">$0</div>
+                    <div class="label">First Year Monthly Income</div>
+                    <div class="value" id="monthlyIncome">£0</div>
                 </div>
             </div>
 
-            <div id="statusMessage" class="status-box">計算中...</div>
+            <div id="statusMessage" class="status-box">Calculating...</div>
 
             <div class="chart-container">
                 <canvas id="wealthChart"></canvas>
             </div>
             
             <div style="font-size: 0.8rem; color: #888; margin-top: 15px; text-align: center;">
-                * 藍色為資產累積期，橘色為退休提領期
+                * Blue represents the accumulation phase, Orange is the withdrawal phase.
             </div>
         </div>
     </div>
 
     <script>
-        // 設定 Chart.js 全域字體
+        // Set Chart.js global font
         Chart.defaults.font.family = "'Roboto Mono', monospace, sans-serif";
         
         window.onload = function() {
@@ -272,77 +268,91 @@
         let chartInstance = null;
 
         function init() {
-            // 綁定輸入框事件：格式化千分位 + 重新計算
+            // Bind input field events: format thousands + recalculate
             ['principal', 'monthly'].forEach(key => {
                 const el = inputs[key];
                 el.addEventListener('input', (e) => {
-                    formatInput(e.target); // 即時格式化
+                    formatInput(e.target); // Real-time formatting
                     updateSimulation();
                 });
-                // 初始化時先格式化一次
+                // Format once on initialization
                 formatInput(el);
             });
 
-            // 綁定滑桿事件
+            // Bind slider events
             ['rate', 'years', 'wRate', 'rYears'].forEach(key => {
                 inputs[key].addEventListener('input', updateSimulation);
             });
+            
+            // Set initial slider text
+            displays.rate.textContent = inputs.rate.value + '%';
+            displays.years.textContent = inputs.years.value + ' years';
+            displays.wRate.textContent = inputs.wRate.value + '%';
+            displays.rYears.textContent = inputs.rYears.value + ' years';
 
             updateSimulation();
         }
 
-        // --- 核心工具：格式化數字 (加逗號) ---
+        // --- Core Tool: Format Number (Add thousands separator) ---
         function formatInput(input) {
-            // 1. 移除非數字字元 (除了小數點，這裡簡化為整數處理，如需小數可調整)
+            // 1. Remove non-numeric characters (assuming integer input)
             let val = input.value.replace(/[^0-9]/g, '');
             
-            // 2. 如果是空值就保持空
+            // 2. If empty, keep empty
             if (val === '') {
                 input.value = '';
                 return;
             }
 
-            // 3. 轉為數字並加上千分位
+            // 3. Convert to number and add thousands separator (using en-US/UK format)
             input.value = parseInt(val).toLocaleString('en-US');
         }
 
-        // --- 核心工具：解析數字 (除逗號) ---
+        // --- Core Tool: Parse Number (Remove commas) ---
         function parseRawValue(input) {
-            // 移除逗號後轉為 float
+            // Remove commas and convert to float
             return parseFloat(input.value.replace(/,/g, '')) || 0;
         }
 
+        // --- Core Tool: Format Money (Localized to GBP) ---
         function formatMoney(num) {
-            return parseInt(num).toLocaleString('zh-TW', { style: 'currency', currency: 'TWD', maximumFractionDigits: 0 });
+            // Use UK locale (en-GB) and GBP currency symbol
+            return new Intl.NumberFormat('en-GB', { 
+                style: 'currency', 
+                currency: 'GBP', 
+                maximumFractionDigits: 0 
+            }).format(num);
         }
 
         function updateSimulation() {
-            // 更新 UI 顯示 (滑桿)
+            // Update UI displays (Sliders)
             displays.rate.textContent = inputs.rate.value + '%';
-            displays.years.textContent = inputs.years.value + '年';
+            displays.years.textContent = inputs.years.value + ' years';
             displays.wRate.textContent = inputs.wRate.value + '%';
-            displays.rYears.textContent = inputs.rYears.value + '年';
+            displays.rYears.textContent = inputs.rYears.value + ' years';
 
-            // 取得數值 (使用 parseRawValue 處理逗號)
+            // Get values (using parseRawValue to handle commas)
             const P = parseRawValue(inputs.principal);
             const PMT = parseRawValue(inputs.monthly);
             const r = parseFloat(inputs.rate.value) / 100;
             const t1 = parseInt(inputs.years.value);
             const wRate = parseFloat(inputs.wRate.value) / 100;
-            const t2 = parseInt(inputs.rYears.value);
+            const t2 = parseInt(inputs.retirementYears.value);
 
             let labels = [];
             let dataPoints = [];
             let currentWealth = P;
             let brokeYear = null;
 
-            // --- 累積期 ---
+            // --- Accumulation Phase ---
+            // i=0 is initial state, i=1 is after the first year
             for (let i = 0; i <= t1; i++) {
-                labels.push(i + "年");
+                labels.push(`Year ${i}`);
                 
                 if (i === 0) {
                     dataPoints.push(currentWealth);
                 } else {
+                    // Monthly compounding for 12 months
                     for(let m=0; m<12; m++) {
                         currentWealth = currentWealth * (1 + r/12) + PMT;
                     }
@@ -351,16 +361,22 @@
             }
 
             const retirementWealth = currentWealth;
-            const annualWithdrawal = retirementWealth * wRate;
+            // The withdrawal is applied at the start of the year
+            let annualWithdrawal = retirementWealth * wRate;
             
-            // --- 提領期 ---
+            // --- Withdrawal Phase ---
             for (let i = 1; i <= t2; i++) {
-                labels.push(t1 + i + "年");
+                labels.push(`Year ${t1 + i}`);
 
+                // 1. Apply annual withdrawal (at the start of the year)
                 currentWealth = currentWealth - annualWithdrawal;
                 
+                // 2. Monthly compounding for the remaining 12 months
                 for(let m=0; m<12; m++) {
-                    currentWealth = currentWealth * (1 + r/12);
+                    // Only apply compounding if wealth is positive
+                    if (currentWealth > 0) {
+                        currentWealth = currentWealth * (1 + r/12);
+                    }
                 }
 
                 if (currentWealth < 0) {
@@ -371,16 +387,16 @@
                 dataPoints.push(currentWealth);
             }
 
-            // --- 更新結果 ---
+            // --- Update Results ---
             displays.final.textContent = formatMoney(retirementWealth);
             displays.income.textContent = formatMoney(annualWithdrawal / 12);
 
             if (currentWealth > 0) {
                 displays.status.className = "status-box status-success";
-                displays.status.textContent = `✅ 資產足夠：剩餘 ${formatMoney(currentWealth)}`;
+                displays.status.textContent = `✅ Success: Remaining wealth is ${formatMoney(currentWealth)}`;
             } else {
                 displays.status.className = "status-box status-danger";
-                displays.status.textContent = `⚠️ 資金耗盡：退休第 ${brokeYear} 年破產`;
+                displays.status.textContent = `⚠️ Ruin: Wealth depleted in year ${brokeYear} of retirement`;
             }
 
             drawChart(labels, dataPoints, t1);
@@ -394,9 +410,9 @@
             }
 
             const backgroundColors = data.map((val, index) => {
-                if (val <= 0) return '#e74c3c';
-                if (index <= retirementIndex) return '#3498db';
-                return '#e67e22';
+                if (val <= 0) return '#e74c3c'; // Danger (Red) for ruin
+                if (index <= retirementIndex) return '#3498db'; // Accumulation (Blue)
+                return '#e67e22'; // Withdrawal (Orange)
             });
 
             const isMobile = window.innerWidth < 600;
@@ -407,7 +423,7 @@
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: '資產金額',
+                        label: 'Asset Value (£)',
                         data: data,
                         backgroundColor: backgroundColors,
                         borderRadius: 2,
@@ -423,12 +439,13 @@
                             display: true,
                             labels: {
                                 font: {
-                                    family: "'Roboto Mono', monospace" // 圖例字體
+                                    family: "'Roboto Mono', monospace" 
                                 },
+                                // Custom labels for the legend
                                 generateLabels: function(chart) {
                                     return [
-                                        { text: '資產累積期', fillStyle: '#3498db' },
-                                        { text: '退休提領期', fillStyle: '#e67e22' }
+                                        { text: 'Accumulation Phase', fillStyle: '#3498db' },
+                                        { text: 'Withdrawal Phase', fillStyle: '#e67e22' }
                                     ];
                                 }
                             }
@@ -440,7 +457,7 @@
                                 }
                             },
                             bodyFont: {
-                                family: "'Roboto Mono', monospace" // Tooltip 字體
+                                family: "'Roboto Mono', monospace" 
                             }
                         }
                     },
@@ -448,12 +465,13 @@
                         y: {
                             beginAtZero: true,
                             ticks: {
+                                // Convert to Thousands (K) for y-axis readability
                                 callback: function(value) {
-                                    return (value / 10000).toFixed(0) + '萬';
+                                    return (value / 1000).toFixed(0) + 'K';
                                 },
                                 font: { 
                                     size: fontSize,
-                                    family: "'Roboto Mono', monospace" // Y軸數字字體
+                                    family: "'Roboto Mono', monospace" 
                                 }
                             },
                             grid: { color: '#f0f0f0' }
@@ -463,7 +481,7 @@
                                 maxTicksLimit: isMobile ? 8 : 15,
                                 font: { 
                                     size: fontSize,
-                                    family: "'Roboto Mono', monospace" // X軸數字字體
+                                    family: "'Roboto Mono', monospace" 
                                 }
                             },
                             grid: { display: false }
